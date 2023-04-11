@@ -8,8 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-
-public class Ruta extends JFrame {
+public class Ruta extends JFrame implements WindowListener {
 
 	private JPanel buttonPanel, drawingPanel;
 	private JTextField startXField, startYField, endXField, endYField;
@@ -17,12 +16,16 @@ public class Ruta extends JFrame {
 	private ArrayList<coordonate_linie> ruteSalvate;
 	private JList<coordonate_linie> ruteList;
 	private DefaultListModel<coordonate_linie> ruteListModel;
+	private mainWindow prevWindow;
 
-	public Ruta() {
-		super("Train Simulator");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	public Ruta(mainWindow prevWindow) {
+		super("Creează o rută nouă");
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		addWindowListener(this);
 
-		// Panoul cu butoane
+		this.prevWindow = prevWindow;
+
 		// Panoul cu butoane
 		buttonPanel = new JPanel();
 		buttonPanel.setLayout(new GridLayout(50, 1, 5, 5));
@@ -293,7 +296,16 @@ public class Ruta extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		new Ruta();
+		mainWindow parent = new mainWindow();
+		parent.setVisible(true);
+		Ruta rute = new Ruta(parent);
+		parent.setVisible(false);
+		rute.addWindowListener(new WindowAdapter() {
+			public void windowClosed(WindowEvent e) {
+				parent.setVisible(true);
+			}
+		});
+		rute.setVisible(true);
 	}
 
 	public void redrawLines(DefaultListModel ruteListModel, ArrayList<coordonate_linie> ruteSalvate,
@@ -304,6 +316,48 @@ public class Ruta extends JFrame {
 			g.drawLine(ptDesen.getX1(), ptDesen.getY1(), ptDesen.getX2(), ptDesen.getY2());
 		}
 		g.dispose();
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		prevWindow.setVisible(true);
+		dispose();
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+
 	}
 
 }
