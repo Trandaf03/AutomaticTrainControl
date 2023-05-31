@@ -10,21 +10,22 @@ import java.util.Scanner;
 
 public class Ruta extends JFrame implements WindowListener {
 
-	private JPanel buttonPanel, drawingPanel;
-	private JTextField startXField, startYField, endXField, endYField;
-	private JButton drawButton, saveButton, resetButton, loadButton;
-	private ArrayList<coordonate_linie> ruteSalvate;
-	private JList<coordonate_linie> ruteList;
-	private DefaultListModel<coordonate_linie> ruteListModel;
-	private mainWindow prevWindow;
+    private JPanel buttonPanel, drawingPanel;
+    private JTextField startXField, startYField, endXField, endYField;
+    private JButton drawButton, saveButton, resetButton, loadButton;
+    private ArrayList<coordonate_linie> ruteSalvate;
+    private JList<coordonate_linie> ruteList;
+    private DefaultListModel<coordonate_linie> ruteListModel;
+    private mainWindow prevWindow;
+    private Point startPoint, endPoint; // Store the starting and ending points of the line
 
-	public Ruta(mainWindow prevWindow) {
-		super("Creează o rută nouă");
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
-		addWindowListener(this);
+    public Ruta(mainWindow prevWindow) {
+        super("Creează o rută nouă");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        addWindowListener(this);
 
-		this.prevWindow = prevWindow;
+        this.prevWindow = prevWindow;
 
 		// Panoul cu butoane
 		buttonPanel = new JPanel();
@@ -120,6 +121,35 @@ public class Ruta extends JFrame implements WindowListener {
 		drawingWrapper.add(drawingPanel);
 		getContentPane().add(drawingWrapper, BorderLayout.CENTER);
 
+		
+		drawingPanel.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                startPoint = e.getPoint();
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                endPoint = e.getPoint();
+                coordonate_linie rutaNoua = new coordonate_linie(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+                ruteSalvate.add(rutaNoua);
+                ruteListModel.addElement(rutaNoua);
+                redrawLines(ruteListModel, ruteSalvate, drawingPanel);
+            }
+        });
+
+        // Mouse motion listener for drawing temporary lines
+        drawingPanel.addMouseMotionListener(new MouseMotionAdapter() {
+            public void mouseDragged(MouseEvent e) {
+                endPoint = e.getPoint();
+                redrawLines(ruteListModel, ruteSalvate, drawingPanel);
+                Graphics g = drawingPanel.getGraphics();
+                g.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+                g.dispose();
+            }
+        });
+
+        // Rest of the code...
+    
+		
 		// Listener pentru butonul de desenare
 		drawButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -308,15 +338,20 @@ public class Ruta extends JFrame implements WindowListener {
 		rute.setVisible(true);
 	}
 
-	public void redrawLines(DefaultListModel ruteListModel, ArrayList<coordonate_linie> ruteSalvate,
-			JPanel drawingPanel) {
-		Graphics g = drawingPanel.getGraphics();
-		g.clearRect(0, 0, drawingPanel.getWidth(), drawingPanel.getHeight());
-		for (coordonate_linie ptDesen : ruteSalvate) {
-			g.drawLine(ptDesen.getX1(), ptDesen.getY1(), ptDesen.getX2(), ptDesen.getY2());
-		}
-		g.dispose();
+	public void redrawLines(DefaultListModel ruteListModel, ArrayList<coordonate_linie> ruteSalvate, JPanel drawingPanel) {
+	    Graphics2D g2d = (Graphics2D) drawingPanel.getGraphics();
+	    g2d.clearRect(0, 0, drawingPanel.getWidth(), drawingPanel.getHeight());
+	    
+	    // Set the stroke width
+	    float strokeWidth = 3.0f;  // Adjust this value to make the lines thicker
+	    g2d.setStroke(new BasicStroke(strokeWidth));
+	    
+	    for (coordonate_linie ptDesen : ruteSalvate) {
+	        g2d.drawLine(ptDesen.getX1(), ptDesen.getY1(), ptDesen.getX2(), ptDesen.getY2());
+	    }
+	    g2d.dispose();
 	}
+
 
 	@Override
 	public void windowOpened(WindowEvent e) {

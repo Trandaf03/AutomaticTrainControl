@@ -1,6 +1,8 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -19,6 +21,8 @@ public class mainWindow extends JFrame {
 	private JList<coordonate_linie> ruteList;
 	private DefaultListModel<coordonate_linie> ruteListModel;
 	private JPanel drawingPanel;
+	private int offsetX = 0, offsetY = 0;
+	
 	public mainWindow() {
 		super("Train Simulator");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -32,21 +36,40 @@ public class mainWindow extends JFrame {
 		// Create the "File" menu
 		JMenu fileMenu = new JMenu("Meniu");
 		JMenu routeMenu = new JMenu("Rută");
-		
+
 		drawingPanel = new JPanel() {
-			@Override
-			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				int gridSize = 10; // set the size of the grid
-				g.setColor(Color.LIGHT_GRAY);
-				for (int x = 0; x < getWidth(); x += gridSize) {
-					for (int y = 0; y < getHeight(); y += gridSize) {
-						g.drawLine(x, y, x, y + gridSize);
-						g.drawLine(x, y, x + gridSize, y);
-										}
-				}
-			}
+		    @Override
+		    public void paintComponent(Graphics g) {
+		        super.paintComponent(g);
+		      
+		        for (coordonate_linie ptDesen : ruteSalvate) {
+		            g.drawLine(ptDesen.getX1() - getOffsetX(), ptDesen.getY1() - getOffsetY(), 
+		            		ptDesen.getX2() - getOffsetX(), ptDesen.getY2() - getOffsetY());
+		        }
+		    }
 		};
+
+
+		// Add a KeyListener to the drawingPanel
+		drawingPanel.addKeyListener(new KeyAdapter() {
+		    @Override
+		    public void keyPressed(KeyEvent e) {
+		        int keyCode = e.getKeyCode();
+		        if (keyCode == KeyEvent.VK_LEFT) {
+		            setOffsetX(getOffsetX() - 10);
+		        } else if (keyCode == KeyEvent.VK_RIGHT) {
+		            setOffsetX(getOffsetX() + 10); 
+		        } else if (keyCode == KeyEvent.VK_UP) {
+		            setOffsetY(getOffsetY() - 10); 
+		        } else if (keyCode == KeyEvent.VK_DOWN) {
+		            setOffsetY(getOffsetY() + 10); 
+		        } 
+		    }
+		});
+
+
+		// Set the drawingPanel focusable to receive key events
+		drawingPanel.setFocusable(true);
 		getContentPane().add(drawingPanel, BorderLayout.CENTER);
 		
 		ruteSalvate = new ArrayList<coordonate_linie>();
@@ -201,21 +224,49 @@ public class mainWindow extends JFrame {
 	// Set the menu bar for the window
 	setJMenuBar(menuBar);
 
-	setVisible(true);}
+	setVisible(true);
+	
+	
+	
+	}
+	void setOffsetX(int value) {
+	    this.offsetX = value;
+	    drawingPanel.repaint();
+	   
+	}
 
+	int getOffsetX() {
+		return offsetX;
+	}
+	void setOffsetY(int value) {
+	    this.offsetY = value;
+	    drawingPanel.repaint();
+	   
+	}
+
+	int getOffsetY() {
+		return offsetY;
+	}
 	public static void main(String[] args) {
 		new mainWindow();
 	}
 	
 	
-	public void redrawLines(DefaultListModel ruteListModel, ArrayList<coordonate_linie> ruteSalvate,
-			JPanel drawingPanel) {
-		Graphics g = drawingPanel.getGraphics();
-		g.clearRect(0, 0, drawingPanel.getWidth(), drawingPanel.getHeight());
-		for (coordonate_linie ptDesen : ruteSalvate) {
-			g.drawLine(ptDesen.getX1(), ptDesen.getY1(), ptDesen.getX2(), ptDesen.getY2());
-		}
-		g.dispose();
+	public void redrawLines(DefaultListModel ruteListModel, ArrayList<coordonate_linie> ruteSalvate, JPanel drawingPanel) {
+	    Graphics g = drawingPanel.getGraphics();
+	    g.clearRect(0, 0, drawingPanel.getWidth(), drawingPanel.getHeight());
+
+	    // Set line color and thickness
+	    g.setColor(Color.BLACK);
+	    Graphics2D g2d = (Graphics2D) g;
+	    g2d.setStroke(new BasicStroke(4));  // Set line thickness to 3 pixels
+
+	    for (coordonate_linie ptDesen : ruteSalvate) {
+	        g.drawLine(ptDesen.getX1(), ptDesen.getY1(), ptDesen.getX2(), ptDesen.getY2());
+	    }
+	    g.dispose();
 	}
+
+	
 
 }

@@ -40,7 +40,7 @@ class coordonate_linie  {
     this.y2 = y2;
   }
   
-  public String getTextCoord() {
+  public String toString() {
 	  return x1 + " " + y1 + " " + x2 + " " + y2 ;
   }
 }
