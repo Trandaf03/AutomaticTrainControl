@@ -43,7 +43,7 @@ public class mainWindow extends JFrame {
 					for (int y = 0; y < getHeight(); y += gridSize) {
 						g.drawLine(x, y, x, y + gridSize);
 						g.drawLine(x, y, x + gridSize, y);
-					}
+										}
 				}
 			}
 		};
